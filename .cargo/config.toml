@@ -1,0 +1,4 @@
+[alias]
+# HTML documentation of every item, private ones included: `cargo docs`, then open
+# target/doc/piviz/index.html (or add `--open`).
+docs = "doc --no-deps --document-private-items"

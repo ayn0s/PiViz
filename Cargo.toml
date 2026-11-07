@@ -1,0 +1,60 @@
+[package]
+name = "piviz"
+version = "0.6.1"
+edition = "2024"
+description = "Real-time visualizer for a live MIDI piano: rising notes, flames and sparks"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ayn0s/PiViz"
+
+[dependencies]
+# 2D renderer only: no bevy_audio (we drive cpal ourselves), no 3D/glTF.
+bevy = { version = "0.19.1", default-features = false, features = ["2d", "tonemapping_luts"] }
+bevy_egui = { version = "0.42", default-features = false, features = ["render", "default_fonts", "manage_clipboard"] }
+midir = "0.11"
+rustysynth = "1.3"
+cpal = "0.18"
+crossbeam-channel = "0.5"
+serde = { version = "1", features = ["derive"] }
+toml = "1"
+sys-locale = "0.3"
+serde_json = "1"
+# Webcam capture. MJPEG frames are decoded with zune-jpeg (pure Rust) rather than nokhwa's mozjpeg.
+nokhwa = { version = "0.10", default-features = false, features = ["input-native"] }
+zune-jpeg = "0.5"
+zune-core = "0.5"
+
+# Only to name `winit::window::Icon`; the version must follow bevy_winit's.
+winit = { version = "0.30", default-features = false }
+tungstenite = "0.30"
+
+# Lets the GUI-subsystem release build print to the terminal it was started from.
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_System_Console"] }
+# The camera driver's settings window (DirectShow property pages).
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_Media_DirectShow",
+    "Win32_Media_MediaFoundation",
+    "Win32_System_Com",
+    "Win32_System_Com_StructuredStorage",
+    "Win32_System_Ole",
+    "Win32_System_Variant",
+] }
+
+[target.'cfg(windows)'.build-dependencies]
+winresource = "0.1"
+
+# Every item carries a doc comment: they make the HTML documentation (`cargo docs`).
+[lints.clippy]
+missing_docs_in_private_items = "warn"
+
+# The synthesizer must be fast even in debug builds, otherwise audio underruns.
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
